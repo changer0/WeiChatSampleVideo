@@ -1,18 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.lulu.weichatsamplevideo.MainActivity">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+
+
 
     <TextView
+        android:layout_marginBottom="150dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:elevation="1dp"
+        android:textColor="#FFFFFF"
+        android:text="双击放大"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"/>
-</RelativeLayout>
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <SurfaceView
+            android:id="@+id/main_surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/colorApp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/main_press_control"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.lulu.weichatsamplevideo.BothWayProgressBar
+                    android:background="#000"
+                    android:id="@+id/main_progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="按住拍"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textColor="#00ff00"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</FrameLayout>
