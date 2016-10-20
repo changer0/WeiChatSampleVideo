@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private int mProgress;
     //录制最大时间
     public static final int MAX_TIME = 10;
+    //
+    private boolean isCancel;
 
     private MyHandler mHandler;
 
@@ -146,11 +148,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         int left = LISTENER_START;
         int right = vW - LISTENER_START;
 
+        float downY = 0;
+
+
+
         switch (v.getId()) {
             case R.id.main_press_control:
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
                         if (ex > left && ex < right) {
+
+                            //记录按下的Y坐标
+                            downY = ey;
                             // TODO: 2016/10/20 开始录制视频, 进度条开始走
                             mProgressBar.setVisibility(View.VISIBLE);
                             //开始录制
@@ -183,8 +192,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             mProgressBar.setVisibility(View.INVISIBLE);
                             //判断是否为录制结束, 或者为成功录制(时间过短)
                             //停止录制
-                            stopRecord();
+
+                            stopRecordSave();
                             ret = false;
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (ex > left && ex < right) {
+                            float currentY = event.getY();
+                            if (downY - currentY > 5){
+                                isCancel = true;
+                                mProgressBar.setCancel(true);
+                            }
                         }
                         break;
                 }
@@ -249,12 +268,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     /**
      * 停止录制
      */
-    private void stopRecord() {
+    private void stopRecordSave() {
         if (isRecording) {
             mMediaRecorder.stop();
             isRecording = false;
             Toast.makeText(this, "视频已经放至" + mTargetFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
         }
+    }
+    private void stopRecordUnSave() {
+
     }
 
 

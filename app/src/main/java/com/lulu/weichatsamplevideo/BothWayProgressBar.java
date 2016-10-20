@@ -84,7 +84,7 @@ public class BothWayProgressBar extends View {
      * 设置录制状态 是否为取消状态
      * @param isCancel
      */
-    public void setState(boolean isCancel) {
+    public void setCancel(boolean isCancel) {
         this.isCancel = isCancel;
         invalidate();
     }
