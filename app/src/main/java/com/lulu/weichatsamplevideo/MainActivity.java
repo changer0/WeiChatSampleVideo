@@ -9,10 +9,12 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private boolean isCancel;
 
     private MyHandler mHandler;
+    private TextView mTvTip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +65,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         videoWidth = 640;
         videoHeight = 480;
         mPreview = (SurfaceView) findViewById(R.id.main_surface_view);
-        mMediaRecorder = new MediaRecorder();
+
         mSurfaceHolder = mPreview.getHolder();
         //设置屏幕分辨率
         mSurfaceHolder.setFixedSize(videoWidth, videoHeight);
         mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         mSurfaceHolder.addCallback(this);
         mStartButton = findViewById(R.id.main_press_control);
+        mTvTip = (TextView) findViewById(R.id.main_tv_tip);
+
         mStartButton.setOnTouchListener(this);
         //自定义双向进度条    (这个地方差点把我急疯了!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!)
         mProgressBar = (BothWayProgressBar) findViewById(R.
@@ -76,9 +81,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         mProgressBar.setOnProgressEndListener(this);
 
         mHandler = new MyHandler(this);
-
+        mMediaRecorder = new MediaRecorder();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: ");
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // SurfaceView回调
@@ -91,40 +101,46 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
     /**
      * 开启预览
+     *
      * @param holder
      */
     private void startPreView(SurfaceHolder holder) {
+        Log.d(TAG, "startPreView: ");
+
         if (mCamera == null) {
             mCamera = Camera.open();
-            if (mCamera != null) {
-                mCamera.setDisplayOrientation(90);
-                try {
-                    mCamera.setPreviewDisplay(holder);
-                    Camera.Parameters parameters = mCamera.getParameters();
-                    //实现Camera自动对焦
-                    List<String> focusModes = parameters.getSupportedFocusModes();
-                    if (focusModes != null) {
-                        for (String mode : focusModes) {
-                            mode.contains("continuous-video");
-                            parameters.setFocusMode("continuous-video");
-                        }
+        }
+        if (mCamera != null) {
+            mCamera.setDisplayOrientation(90);
+            try {
+                mCamera.setPreviewDisplay(holder);
+                Camera.Parameters parameters = mCamera.getParameters();
+                //实现Camera自动对焦
+                List<String> focusModes = parameters.getSupportedFocusModes();
+                if (focusModes != null) {
+                    for (String mode : focusModes) {
+                        mode.contains("continuous-video");
+                        parameters.setFocusMode("continuous-video");
                     }
-                    mCamera.setParameters(parameters);
-                    mCamera.startPreview();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+                mCamera.setParameters(parameters);
+                mCamera.startPreview();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
+
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
     }
+
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         if (mCamera != null) {
+            Log.d(TAG, "surfaceDestroyed: ");
             //停止预览并释放摄像头资源
             mCamera.stopPreview();
             mCamera.release();
@@ -134,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             mMediaRecorder.release();
         }
     }
-
 
 
     @Override
@@ -150,14 +165,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
         float downY = 0;
 
-
-
         switch (v.getId()) {
             case R.id.main_press_control:
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
                         if (ex > left && ex < right) {
-
+                            mProgressBar.setCancel(false);
+                            //显示上滑取消
+                            mTvTip.setVisibility(View.VISIBLE);
+                            mTvTip.setText("↑ 上滑取消");
                             //记录按下的Y坐标
                             downY = ey;
                             // TODO: 2016/10/20 开始录制视频, 进度条开始走
@@ -165,13 +181,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                             //开始录制
                             Toast.makeText(this, "开始录制", Toast.LENGTH_SHORT).show();
                             startRecord();
-                            mProgress = 0;
-                            mProgressThread = new Thread(){
+
+                            mProgressThread = new Thread() {
                                 @Override
                                 public void run() {
                                     super.run();
                                     try {
-                                        while (true){
+                                        mProgress = 0;
+                                        while (true) {
                                             mProgress++;
                                             mHandler.obtainMessage(0).sendToTarget();
                                             Thread.sleep(20);
@@ -189,18 +206,33 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         break;
                     case MotionEvent.ACTION_UP:
                         if (ex > left && ex < right) {
+                            mTvTip.setVisibility(View.INVISIBLE);
                             mProgressBar.setVisibility(View.INVISIBLE);
                             //判断是否为录制结束, 或者为成功录制(时间过短)
-                            //停止录制
+                            if (!isCancel) {
+                                if (mProgress < 50) {
+                                    //时间太短不保存
+                                    stopRecordUnSave();
+                                    Toast.makeText(this, "时间太短", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+                                //停止录制
+                                stopRecordSave();
+                            } else {
+                                //现在是取消状态,不保存
+                                stopRecordUnSave();
+                                isCancel = false;
+                                Toast.makeText(this, "取消录制", Toast.LENGTH_SHORT).show();
+                                mProgressBar.setCancel(false);
+                            }
 
-                            stopRecordSave();
                             ret = false;
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (ex > left && ex < right) {
                             float currentY = event.getY();
-                            if (downY - currentY > 5){
+                            if (downY - currentY > 10) {
                                 isCancel = true;
                                 mProgressBar.setCancel(true);
                             }
@@ -275,8 +307,16 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Toast.makeText(this, "视频已经放至" + mTargetFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
         }
     }
-    private void stopRecordUnSave() {
 
+    private void stopRecordUnSave() {
+        if (isRecording) {
+            mMediaRecorder.stop();
+            isRecording = false;
+            if (mTargetFile.exists()) {
+                //不保存直接删掉
+                mTargetFile.delete();
+            }
+        }
     }
 
 
@@ -285,6 +325,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private static class MyHandler extends Handler {
         private WeakReference<MainActivity> mReference;
         private MainActivity mActivity;
+
         public MyHandler(MainActivity activity) {
             mReference = new WeakReference<MainActivity>(activity);
             mActivity = mReference.get();
