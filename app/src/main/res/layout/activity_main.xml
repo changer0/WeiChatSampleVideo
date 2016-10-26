@@ -1,51 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
-
-
-
-
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <TextView
         android:id="@+id/main_tv_tip"
-        android:layout_marginBottom="150dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:elevation="1dp"
-        android:textColor="#FFFFFF"
-        android:text="双击放大"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="150dp"
+        android:elevation="1dp"
+        android:text="双击放大"
+        android:textColor="#FFFFFF"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
         <SurfaceView
             android:id="@+id/main_surface_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="3"/>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@color/colorApp"
             android:orientation="vertical">
-
             <RelativeLayout
                 android:id="@+id/main_press_control"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-
                 <com.lulu.weichatsamplevideo.BothWayProgressBar
-                    android:background="#000"
                     android:id="@+id/main_progress_bar"
                     android:layout_width="match_parent"
-                    android:layout_height="2dp"/>
-
+                    android:layout_height="2dp"
+                    android:background="#000"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -54,9 +44,6 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Large"
                     android:textColor="#00ff00"/>
             </RelativeLayout>
-
         </LinearLayout>
-
-
     </LinearLayout>
 </FrameLayout>

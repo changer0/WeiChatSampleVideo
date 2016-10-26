@@ -28,8 +28,6 @@ public class BothWayProgressBar extends View {
     //进度条结束的监听
     private OnProgressEndListener mOnProgressEndListener;
 
-
-
     public BothWayProgressBar(Context context) {
         super(context, null);
     }

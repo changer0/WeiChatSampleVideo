@@ -220,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 mTargetFile = new File(targetDir,
                         SystemClock.currentThreadTimeMillis() + ".mp4");
                 mMediaRecorder.setOutputFile(mTargetFile.getAbsolutePath());
-
                 mMediaRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
                 mMediaRecorder.prepare();
                 //正式录制
@@ -414,8 +413,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     ///////////////////////////////////////////////////////////////////////////
     // 变焦手势处理类
     ///////////////////////////////////////////////////////////////////////////
-
-
     class ZoomGestureListener extends GestureDetector.SimpleOnGestureListener {
         //双击手势事件
         @Override
@@ -433,7 +430,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
             return true;
         }
-
     }
 
 
