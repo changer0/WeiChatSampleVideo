@@ -221,6 +221,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                         SystemClock.currentThreadTimeMillis() + ".mp4");
                 mMediaRecorder.setOutputFile(mTargetFile.getAbsolutePath());
                 mMediaRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
+                //解决录制视频, 播放器横向问题
+                mMediaRecorder.setOrientationHint(90);
+
                 mMediaRecorder.prepare();
                 //正式录制
                 mMediaRecorder.start();
